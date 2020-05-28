@@ -2,14 +2,16 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+extern "C" int last_mem_id = 0;
 struct Minfo
 {
+    long id;
     long line;
     std::string file;
     size_t size;
     void *mptr;
-    Minfo(long ln, std::string f, size_t sz, void *p)
-        : line(ln), size(sz), file(f), mptr(p){};
+    Minfo(long id, long ln, std::string f, size_t sz, void *p)
+        : id(id), line(ln), size(sz), file(f), mptr(p){};
 };
 
 static std::list<Minfo> minfo_list;
@@ -17,7 +19,8 @@ static std::list<Minfo> minfo_list;
 extern "C" void *malloc_tracked(size_t size, long ln, const char *file)
 {
     void *m = malloc(size);
-    minfo_list.push_back(Minfo(ln, file, size, m));
+    minfo_list.push_back(Minfo(last_mem_id + 1, ln, file, size, m));
+    ++last_mem_id;
     return m;
 }
 
@@ -39,7 +42,7 @@ extern "C" size_t DumpMemRecord()
     std::cout << "Resources unfreed:" << minfo_list.size() << std::endl;
     for (auto &&i : minfo_list)
     {
-        std::cout << i.file << ":" << i.line << std::endl;
+        std::cout << "[" << i.id << "] " << i.file << ":" << i.line << std::endl;
     }
     return minfo_list.size();
 }

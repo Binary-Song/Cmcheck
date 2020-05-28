@@ -6,8 +6,10 @@
 
 size_t DumpMemRecord();
 
-void* malloc_tracked(size_t, long ln, const char *file);
+void *malloc_tracked(size_t, long ln, const char *file);
 
 void free_tracked(void *, long ln, const char *file);
+
+extern int last_mem_id;
 
 #endif
